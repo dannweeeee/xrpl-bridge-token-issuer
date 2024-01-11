@@ -1,5 +1,6 @@
 import json
 import xrpl
+from xrpl.core import keypairs
 
 # Load config ------------------------------------------------------------------
 with open("config.json", "r") as f:
@@ -28,21 +29,22 @@ cold_settings_tx = xrpl.models.transactions.AccountSet(
     transfer_rate=0,
     tick_size=5,
     domain=bytes.hex("example.com".encode("ASCII")),
-    set_flag=xrpl.models.transactions.AccountSetFlag.ASF_DEFAULT_RIPPLE,
+    set_flag=xrpl.models.transactions.AccountSetAsfFlag.ASF_DEFAULT_RIPPLE,
 )
-cst_prepared = xrpl.transaction.safe_sign_and_autofill_transaction(
+cst_prepared = xrpl.transaction.autofill_and_sign(
     transaction=cold_settings_tx,
     wallet=cold_wallet,
     client=client,
 )
 print("➡️ Sending issuer address AccountSet transaction...")
-response = xrpl.transaction.send_reliable_submission(cst_prepared, client)
+response = xrpl.transaction.submit_and_wait(cst_prepared, client)
 print("✔️ Cold address AccountSet transaction success!\n")
 
 # Create trust line from hot to cold address -----------------------------------
-hot_wallet = xrpl.wallet.Wallet(seed=seed, sequence=0)
-hot_wallet_info = xrpl.account.get_account_info(hot_wallet.classic_address, client)
-hot_wallet.sequence = hot_wallet_info.result.get("account_data").get("Sequence")
+public_key, private_key = keypairs.derive_keypair(seed)
+hot_wallet = xrpl.wallet.Wallet(seed=seed, public_key=public_key, private_key=private_key)
+hot_wallet_info = xrpl.account.get_account_root(hot_wallet.classic_address, client)
+hot_wallet.last_ledger_sequence = hot_wallet_info.get("Sequence")
 
 trust_set_tx = xrpl.models.transactions.TrustSet(
     account=hot_wallet.classic_address,
@@ -52,13 +54,13 @@ trust_set_tx = xrpl.models.transactions.TrustSet(
         value="10000000000", # Large limit, arbitrarily chosen
     )
 )
-ts_prepared = xrpl.transaction.safe_sign_and_autofill_transaction(
+ts_prepared = xrpl.transaction.autofill_and_sign(
     transaction=trust_set_tx,
     wallet=hot_wallet,
     client=client,
 )
 print("➡️ Creating trust line from receiver address to issuer...")
-response = xrpl.transaction.send_reliable_submission(ts_prepared, client)
+response = xrpl.transaction.submit_and_wait(ts_prepared, client)
 print("✔️ Trust line created successfully!\n")
 
 # Send token -------------------------------------------------------------------
@@ -71,13 +73,13 @@ send_token_tx = xrpl.models.transactions.Payment(
         value=issue_quantity
     )
 )
-pay_prepared = xrpl.transaction.safe_sign_and_autofill_transaction(
+pay_prepared = xrpl.transaction.autofill_and_sign(
     transaction=send_token_tx,
     wallet=cold_wallet,
     client=client,
 )
 print(f"➡️ Sending {issue_quantity} {currency_code} to {hot_wallet.classic_address}...")
-response = xrpl.transaction.send_reliable_submission(pay_prepared, client)
+response = xrpl.transaction.submit_and_wait(pay_prepared, client)
 print(f"✔️ {issue_quantity} {currency_code} were sent successfully to {hot_wallet.classic_address}!\n\n")
 
 # Summary ---------------------------------------------------------------

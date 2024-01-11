@@ -1,8 +1,7 @@
 {
-    "node_url": "https://s.devnet.rippletest.net:51234/",
+    "node_url": "https://s.devnet.rippletest.net:51234",
     "currency_code": "SGD",
-    "seed": "sEd7rCnZkcZVephtscrfM4izkyJyjNv",
-    "issue_quantity": 1000000000,
-    "faucet_host": "sidechain-faucet.devnet.rippletest.net",
-    "issuerSeed": "sEdV7UZ2hK7z5TA4SFQd1Ez4vrtq9Vy"
+    "seed": "sEd7pL2t58h3jdHVTszqSfXBSA3JboG",
+    "issue_quantity": 1000000,
+    "faucet_host": "faucet.devnet.rippletest.net"
 }
