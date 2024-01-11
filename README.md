@@ -10,16 +10,27 @@ Install the xrpl package:
 pip install xrpl-py
 ```
 
+Activate the virtual environment: On macOS and Linux, run:
+
+```sh
+source myenv/bin/activate
+```
+
+On Windows, run:
+
+```sh
+.\myenv\Scripts\activate
+```
+
 Set config:
 
 ```json
 {
-    "node_url": "http://sidechain-net1.devnet.rippletest.net:51234",
-    "currency_code": "TST",
-    "seed": "sEd7nEkquz3AKirhJBKvwYWswewygVh",
-    "issue_quantity": 1000000,
-    "faucet_host": "sidechain-faucet.devnet.rippletest.net",
-    "issuerSeed": //Optional
+  "node_url": "https://s.devnet.rippletest.net:51234",
+  "currency_code": "SGD",
+  "seed": "sEd7nEkquz3AKirhJBKvwYWswewygVh",
+  "issue_quantity": 1000000,
+  "faucet_host": "faucet.devnet.rippletest.net"
 }
 ```
 
